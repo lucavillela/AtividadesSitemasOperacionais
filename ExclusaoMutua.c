@@ -2,42 +2,43 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
-  
-int g = 0;
-    
-void *threadInc(void *vargp)
-{
+#include <semaphore.h>
+
+int g = 0; //inicialização da variavel global
+sem_t mutex; //criação do semaforo
+
+void *threadInc(void *vargp){
+    sem_wait(&mutex); //equivalente ao down (verifica se a regiao critica pode ser acessada)
     int a = g;
     a = a + 1;
-    sleep(0.1);
-    g = a;
-    //printf("Thread Inc ID: %d, Static: %d, Global: %d\n", *myid, a, g);
-    printf("INC - local: %d, global: %d\n", a, g);
-
+    sleep(0.1); 
+    g = a; // incrementa a variavel global
+    sem_post(&mutex); //equivalente ao up (libera acesso a regiao critica)
 }
 
-void *threadDec(void *vargp)
-{
+void *threadDec(void *vargp){
+    sem_wait(&mutex);
     int a = g;
     a = a - 1;
-    sleep(0.1);
-    //int *myid = (int *)vargp;
+    sleep(0.1); //mesma coisa da funcao de cima so que decrementando a variavel global
     g = a;
-    //printf("Thread Inc ID: %d, Static: %d, Global: %d\n", *myid, a, g);
-    printf("DEC - local: %d, global: %d\n", a, g);
+    sem_post(&mutex);
 }
   
-int main()
-{
+int main(){
     int i;
-    pthread_t tid;
+    sem_init(&mutex, 0, 1); //inicializa o semaforo
+    pthread_t idInc[100]; //cria um vetor de threads que vão incrementar a variavel global
+    pthread_t idDec[100]; //cria um vetor de threads que vão decrementar a variavel global
 
     for (i = 0; i < 100; i++){
-        pthread_create(&tid, NULL, threadInc, (void *)&tid);
-        pthread_create(&tid, NULL, threadDec, (void *)&tid);
+        pthread_create(&(idInc[i]), NULL, threadInc, (void *)&(idInc[i])); //cria de fato as 100 threads
+        pthread_create(&(idDec[i]), NULL, threadDec, (void *)&(idDec[i])); //cria de fato as outras 100 threads
     }
-    printf("\n\n\n\n\n\n%d\n", g);
-    pthread_exit(NULL);
-    
+    for (i = 0; i < 100; i++){
+        pthread_join(idInc[i], NULL); //função que espera a thread terminar (pra finalizar o processo das threads)
+        pthread_join(idDec[i], NULL);
+    }
+    printf("%d\n", g); //printa a variavel global (se os semaforos funcionaram é pra ser 0)
     return 0;
 }
