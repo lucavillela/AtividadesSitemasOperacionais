@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+//Dupla: Bernardo Serravalle e Luca Villela
+
 int g = 0; //inicialização da variavel global
 sem_t mutex; //criação do semaforo
 
@@ -26,6 +28,7 @@ void *threadDec(void *vargp){
 }
   
 int main(){
+
     int i;
     sem_init(&mutex, 0, 1); //inicializa o semaforo
     pthread_t idInc[100]; //cria um vetor de threads que vão incrementar a variavel global
@@ -39,6 +42,8 @@ int main(){
         pthread_join(idInc[i], NULL); //função que espera a thread terminar (pra finalizar o processo das threads)
         pthread_join(idDec[i], NULL);
     }
+
     printf("%d\n", g); //printa a variavel global (se os semaforos funcionaram é pra ser 0)
     return 0;
+    
 }
