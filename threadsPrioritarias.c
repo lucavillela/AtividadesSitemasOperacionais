@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include <time.h>
 
+//Grupo: Arthur Sant'Anna, Bernardo Serravalle, Gabriel Claudino e Luca Villela.
+
 #define NUM_THREADS 15
 pthread_mutex_t mutex;
 
@@ -81,6 +83,7 @@ void *exampleFunction(void *arg) {
 }
 
 int main() {
+
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
 
